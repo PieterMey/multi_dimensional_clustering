@@ -138,7 +138,10 @@ class MD_clustering:
     
     def concat_saved_cols(self, X=''):
         if not(isinstance(X, pd.DataFrame)) and X == '':
-            X = self.data_clustered.copy()
+            if isinstance(self.data_inverse_scaled, pd.DataFrame):
+                X = self.data_inverse_scaled.copy()
+            else:
+                X = self.data_clustered.copy()
             self.data_final = pd.concat([X, self.save_col], axis =1)
 
     def drop_rows(self, rows):
@@ -462,19 +465,49 @@ class MD_clustering:
         else: 
            self.data = pd.DataFrame(x)
         
-# if __name__ == '__main__':
-    # MDC = MD_clustering()
-    # MDC.load_data()
-    # MDC.drop_rows() # 2: Others
-    # MDC.drop_cols()
-    # SC = MinMaxScaler()
-    # MDC.scale_data(scaler=SC)
-    # MDC.get_loading_scores(show=False)
-    # MDC.get_n_clusters(show=False)
-    # MDC.cluster(clusters_n=4)
-    # MDC.visualize('2D')
-    # MDC.inverse_scale()
-    # MDC.concat_saved_cols()
-    # MDC.save_data()
+if __name__ == '__main__':
+    MDC = MD_clustering()
+    MDC.load_data('data\\preprocessed_data_not_norm.csv', sep=';', label_column_name='mapped_name',preprocessed=False)
+    MDC.drop_rows([2]) # 2: Others
+    MDC.drop_cols(cols=['Unnamed: 0','Value_2020','Value_2019','Value_2021'], 
+        save_cols=['atc_Others', 'atc_a02 drugs for acid related disorders',
+        'atc_a07 antidiarrheals, intestinal antiinflammatory/antiinfective agents',
+       'atc_a10 drugs used in diabetes',
+       'atc_a16 other alimentary tract and metabolism products',
+       'atc_b01 antithrombotic agents', 'atc_b02 antihemorrhagics',
+       'atc_b03 antianemic preparations',
+       'atc_b05 blood substitutes and perfusion solutions',
+       'atc_b06 other hematological agents', 'atc_c01 cardiac therapy',
+       'atc_c09 agents acting on the renin-angiotensin system',
+       'atc_g03 sex hormones and modulators of the genital system',
+       'atc_h01 pituitary and hypothalamic hormones and analogues',
+       'atc_j01 antibacterials for systemic use',
+       'atc_j02 antimycotics for systemic use',
+       'atc_j05 antivirals for systemic use',
+       'atc_j06 immune sera and immunoglobulins', 'atc_j07 vaccines',
+       'atc_l01 antineoplastic agents', 'atc_l02 endocrine therapy',
+       'atc_l03 immunostimulants', 'atc_l04 immunosuppressants',
+       'atc_m01 antiinflammatory and antirheumatic products',
+       'atc_m03 muscle relaxants', 'atc_m04 antigout preparations',
+       'atc_m05 drugs for treatment of bone diseases', 'atc_n01 anesthetics',
+       'atc_n02 analgesics', 'atc_n03 antiepileptics',
+       'atc_n04 anti-parkinson drugs', 'atc_n05 psycholeptics',
+       'atc_n06 psychoanaleptics', 'atc_n07 other nervous system drugs',
+       'atc_r03 drugs for obstructive airway diseases',
+       'atc_r06 antihistamines for systemic use', 'atc_s01 ophthalmologicals',
+       'atc_s02 otologicals','ratio_sales_cat_Others','ratio_sales_cat_datascience',
+        'ratio_sales_cat_grundabonnement','ratio_sales_cat_nordiske varenumre','ratio_sales_cat_npi','ratio_sales_cat_produkter',
+        'ratio_sales_cat_rådgivning','ratio_sales_cat_variable leverancer', 'atc_Others', 'atc_a02 drugs for acid related disorders','sales_cat_Others','sales_cat_datascience','sales_cat_grundabonnement','sales_cat_nordiske varenumre',
+    'sales_cat_npi','sales_cat_produkter','sales_cat_rådgivning','sales_cat_variable leverancer'])
+    MDC.drop_cols(save_cols= ['Volume', 'Value'])
+    SC = MinMaxScaler()
+    MDC.scale_data(scaler=SC)
+    MDC.get_loading_scores(show=False)
+    MDC.get_n_clusters(show=False)
+    MDC.cluster(clusters_n=4, seed=46)
+    MDC.visualize('2D')
+    MDC.inverse_scale()
+    MDC.concat_saved_cols()
+    MDC.save_data()
     # MDC.pairwise_plot(save_img=True)
     
