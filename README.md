@@ -11,6 +11,7 @@ DEPENDENCIES:
 The package operates as a class. It has implementations to handle preprocessed/unpreprocessed data. It has the build in ability to display the elbow-method to determine optimal number of clusters. As well as the loading scores involved for n PCA components. The class can display 1-D, 2-D, 3-D visualizations based on the output of the KMeans algorithm and the top 3 PCA components. Finally, if desired it can also display a pairwise plot of all features. 
 
 Below a list of possible functionality is shown, a deeper explenation is given when typing help(MD_clustering()):
+- from multi_dimensional_clustering import MD_clustering
 - MDC = MD_clustering() # Creating the object
 - MDC.load_data(PATH, label_column_name=COL_NAME, preprocessed=BOOL) # Loading the data, if there is a label column that should be appended or wants to be saved please specify. Also if the data has already been preprocessed.
 - MDC.drop_rows([int(s)]) # drop specific rows
