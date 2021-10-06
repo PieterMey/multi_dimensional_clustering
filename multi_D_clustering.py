@@ -462,7 +462,8 @@ class MD_clustering:
         else: 
            self.data = pd.DataFrame(x)
         
-# if __name__ == '__main__':
+if __name__ == '__main__':
+    MDC = MD_clustering()
     # MDC = MD_clustering()
     # MDC.load_data()
     # MDC.drop_rows() # 2: Others
