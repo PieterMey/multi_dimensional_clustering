@@ -330,7 +330,7 @@ class MD_clustering:
             self.get_PCA(X)
         
         if not(isinstance(self.loadings, pd.DataFrame)):
-            self.get_loading_scores(X=X, show=False)
+            self.get_loading_scores(show=False)
 
         clusters = []
 
