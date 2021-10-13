@@ -2,7 +2,7 @@ import pathlib
 from setuptools import setup, find_packages 
 
 HERE = pathlib.Path(__file__).parent 
-VERSION = '0.1.2' 
+VERSION = '0.1.3' 
 PACKAGE_NAME = 'multi_dimensional_clustering' 
 AUTHOR = 'Pieter Meyer' 
 AUTHOR_EMAIL = 'you@email.com' 

@@ -1,12 +1,16 @@
 import random
 import glob
 
+import os
+
 import pandas as pd
 import numpy as np
 import seaborn as sns
+
 import matplotlib.pyplot as plt
 
 import plotly as py
+
 import plotly.graph_objs as go
 from plotly.offline import iplot
 
@@ -29,6 +33,7 @@ class MD_clustering:
         self.data_inverse_scaled = None
         self.save_col = None
         self.data_final = None
+        self.loadings = None
 
     def load_data(self, filename='', sep=',',decimal='.',label_column_name=None, preprocessed = False):
         """
@@ -70,7 +75,10 @@ class MD_clustering:
         elif isinstance(self.data_final, pd.DataFrame):
             X = self.data_final
         
-        X.to_csv(filename, sep=sep, decimal=decimal)
+        if not os.path.exists('output_data'):
+            os.makedirs('output_data')
+            print('Created new folder @output_data where all results will be stored.')
+        X.to_csv('output_data/'+filename, sep=sep, decimal=decimal)
 
         
 
@@ -138,7 +146,10 @@ class MD_clustering:
     
     def concat_saved_cols(self, X=''):
         if not(isinstance(X, pd.DataFrame)) and X == '':
-            X = self.data_clustered.copy()
+            if isinstance(self.data_inverse_scaled, pd.DataFrame):
+                X = self.data_inverse_scaled.copy()
+            else:
+                X = self.data_clustered.copy()
             self.data_final = pd.concat([X, self.save_col], axis =1)
 
     def drop_rows(self, rows):
@@ -317,6 +328,9 @@ class MD_clustering:
             
         if not(isinstance(self.plotX, pd.DataFrame)):
             self.get_PCA(X)
+        
+        if not(isinstance(self.loadings, pd.DataFrame)):
+            self.get_loading_scores(X=X, show=False)
 
         clusters = []
 
@@ -462,20 +476,3 @@ class MD_clustering:
         else: 
            self.data = pd.DataFrame(x)
         
-if __name__ == '__main__':
-    MDC = MD_clustering()
-    # MDC = MD_clustering()
-    # MDC.load_data()
-    # MDC.drop_rows() # 2: Others
-    # MDC.drop_cols()
-    # SC = MinMaxScaler()
-    # MDC.scale_data(scaler=SC)
-    # MDC.get_loading_scores(show=False)
-    # MDC.get_n_clusters(show=False)
-    # MDC.cluster(clusters_n=4)
-    # MDC.visualize('2D')
-    # MDC.inverse_scale()
-    # MDC.concat_saved_cols()
-    # MDC.save_data()
-    # MDC.pairwise_plot(save_img=True)
-    
