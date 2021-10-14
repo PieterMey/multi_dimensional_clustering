@@ -218,6 +218,7 @@ class MD_clustering:
             X (pd.DataFrame, non-optional): Original unclustered data set.
             pca_components (int, non-optional): Desired amount of visualized principal components. Defaults to 3.
             positive_cor (bool, optional): If user only wants to see the positive correlated features to each PC. Defaults to False.
+            show (bool, optional): If user wants to see the graphical displays. Defaults to True
         """
         if not(isinstance(X, pd.DataFrame)) and X == '':
             if isinstance(self.data_scaled, pd.DataFrame):
@@ -327,8 +328,8 @@ class MD_clustering:
         Args:
             X (pd.DataFrame): A clustered DataFrame. 
             graph (str, optional): A string '1D', '2D' or '3D' for the desired graph representation. Defaults to 2D.                                                                   
-            show_loading_scores (bool, optional): If user wants the loading scores desplayed on the 2D and 3D graph.
-            show_mesh (bool, optional): If the user wants a vague representation of the cluster boundary in the 3D space.
+            show_loading_scores (bool, optional): If user wants the loading scores desplayed on the 2D and 3D graph. Defaults to False.
+            show_mesh (bool, optional): If the user wants a vague representation of the cluster boundary in the 3D space. Defaults to False.
         """
         if not(isinstance(X, pd.DataFrame)) and X == '':                       
             X = self.data_clustered.copy()       
@@ -346,7 +347,6 @@ class MD_clustering:
 
         clusters = []
 
-        # Removes a common string within all column names ('i.e., 'sales_cat_')
         if isinstance(self.data_scaled, pd.DataFrame):
             features = self.data_scaled.columns
         elif isinstance(self.data, pd.DataFrame):
