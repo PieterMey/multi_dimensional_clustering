@@ -24,7 +24,7 @@ from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler
 class MD_clustering:
 
     def __init__(self):
-        self.colors = ['rgba(255, 128, 255, 0.8)','rgba(255, 128, 2, 0.8)','rgba(0, 255, 200, 0.8)','rgba(0, 0, 255, 0.8)','rgba(255, 255,115, 0.8)','rgba(255, 0,0, 0.8)','rgba(98, 0,131, 0.8)', 'rgba(255,235,215,0.8)', 'rgba(125,38,205,0.8)','rgba(0, 0, 0, 0.8)']
+        self.colors = ['rgba(255, 128, 255, 0.8)','rgba(255, 128, 2, 0.8)','rgba(0, 255, 200, 0.8)','rgba(0, 0, 255, 0.8)','rgba(255, 255,115, 0.8)','rgba(255, 0,0, 0.8)','rgba(98, 0,131, 0.8)', 'rgba(255,235,215,0.8)', 'rgba(125,38,205,0.8)','rgba(0, 0, 0, 0.8)','rgba(139,69,19,0.8)','rgba(238,232,205,0.8)','rgba(193,255,193,0.8)','rgba(153,50,204,0.8)']
         self.label_col_bool = False
         self.label_col = None
         self.plotX = None
@@ -34,6 +34,18 @@ class MD_clustering:
         self.save_col = None
         self.data_final = None
         self.loadings = None
+        self.get_clusters()
+
+    def get_clusters(self):
+        estimators = all_estimators(type_filter='cluster')
+        self.all_clusters = []
+        for name, RegressorClass in estimators:
+            try:
+                reg = RegressorClass
+                self.all_clusters.append(reg)
+            except Exception as e:
+                print(e)
+        
 
     def load_data(self, filename='', sep=',',decimal='.',label_column_name=None, preprocessed = False):
         """
@@ -181,6 +193,7 @@ class MD_clustering:
             min_n (int, optional): Minimum desired clusters. Defaults to 1.
             max_n (int, optional): Maximum desired clusters. Defaults to 11.
         """
+
         if not(isinstance(X, pd.DataFrame)) and X == '':
             if isinstance(self.data_scaled, pd.DataFrame):
                 X = self.data_scaled.copy()
@@ -220,6 +233,7 @@ class MD_clustering:
             positive_cor (bool, optional): If user only wants to see the positive correlated features to each PC. Defaults to False.
             show (bool, optional): If user wants to see the graphical displays. Defaults to True
         """
+        
         if not(isinstance(X, pd.DataFrame)) and X == '':
             if isinstance(self.data_scaled, pd.DataFrame):
                 X = self.data_scaled.copy()
@@ -257,7 +271,7 @@ class MD_clustering:
                 # Display values as a dataframe
                 display(pd.DataFrame(pc_loadings))
         
-    def cluster(self, X='', clusters_n=3,seed=None):
+    def cluster(self, X='', model=None, clusters_n=3,seed=None):
         """
         Function clusters the data 'X' into 'clusters_n' clusters'. It then also finds the 1st, 2nd and 3rd PC.
 
@@ -265,22 +279,28 @@ class MD_clustering:
             X (pd.DataFrame, non-optional): A dataframe of X unclustered data.
             clusters_n (int, non-optional): An integer to cluster the data 'X' into n clusters. Defaults to 3.
         """
+
         if not(isinstance(X, pd.DataFrame)) and X == '':
             if isinstance(self.data_scaled, pd.DataFrame):
                 X = self.data_scaled.copy()
             elif isinstance(self.data, pd.DataFrame):
                 X = self.data.copy()
-
         x = X.copy()
-        self.n_clusters = clusters_n
+        
+        if model==None:
+            self.model = KMeans(n_clusters=clusters_n, random_state=seed)
+        elif type(model) in self.all_clusters:
+            self.model = model
+        elif not(type(model) in self.all_clusters):
+            print('Given model is not recognized or part of sklearn.cluster classes. Please provide a model from the following list: \n {}'.format(self.all_clusters))
 
-        self.kmeans = KMeans(n_clusters=clusters_n, random_state=seed)
-        self.kmeans.fit(x)
-        self.clusters_l = pd.DataFrame(self.kmeans.predict(x), columns=['Cluster'])
+        self.clusters_l = pd.DataFrame(self.model.fit_predict(x), columns=['Cluster'])
         x = pd.concat([self.clusters_l, x],axis=1)
         self.get_PCA(x)
         if self.label_col_bool: x = pd.concat([self.label_col,x],axis=1)
+
         self.data_clustered = x
+        self.n_clusters = self.data_clustered['Cluster'].unique()
 
     def get_PCA(self, X=''):
         """
@@ -354,11 +374,11 @@ class MD_clustering:
 
         PLOT = go.Figure()
 
-        for i in range(self.n_clusters):
-            clusters.append(self.plotX[self.plotX['Cluster'] == i])
+        for i in range(len(self.n_clusters)):
+            clusters.append(self.plotX[self.plotX['Cluster'] == self.n_clusters[i]])
 
             if self.label_col_bool:
-                names = self.data_clustered[self.data_clustered['Cluster']==i]
+                names = self.data_clustered[self.data_clustered['Cluster']==self.n_clusters[i]]
                 names = names[self.label_column_name]
             else:
                 names = None
@@ -370,7 +390,7 @@ class MD_clustering:
                         y = clusters[i]["PC2_3d"],
                         z = clusters[i]["PC3_3d"],
                         mode = "markers",
-                        name = "Cluster {}".format(i),
+                        name = "Cluster {}".format(self.n_clusters[i]),
                         marker = dict(color = self.colors[i]),
                         text = names))
                 if show_mesh:
@@ -386,7 +406,7 @@ class MD_clustering:
                             scene=dict(xaxis=dict(title='PC1',ticklen= 5, zeroline= False), 
                                     yaxis=dict(title='PC2',ticklen=5,zeroline= False), 
                                     zaxis=dict(title='PC3',ticklen=5,zeroline= False)))
-                if show_loading_scores and i == self.n_clusters-1:
+                if show_loading_scores and i == len(self.n_clusters)-1:
                     for j, feature in enumerate(features):
                         PLOT.add_trace(go.Scatter3d(
                                 x = [0,list(self.loadings.iloc[j][['PC1']])[0]],
@@ -409,7 +429,7 @@ class MD_clustering:
                         x = clusters[i]["PC1_2d"],
                         y = clusters[i]["PC2_2d"],
                         mode = "markers",
-                        name = "Cluster {}".format(i),
+                        name = "Cluster {}".format(self.n_clusters[i]),
                         marker = dict(color = self.colors[i]),
                         text = names))
                 title = "Visualizing Clusters in Two Dimensions Using PCA"
@@ -417,7 +437,7 @@ class MD_clustering:
                             xaxis= dict(title= 'PC1',ticklen= 5,zeroline= False),
                             yaxis= dict(title= 'PC2',ticklen= 5,zeroline= False)
                             ))
-                if show_loading_scores and i == self.n_clusters-1:
+                if show_loading_scores and i == len(self.n_clusters)-1:
                     for j, feature in enumerate(features):
                         PLOT.add_shape(
                             type='line',
@@ -439,7 +459,7 @@ class MD_clustering:
                         x = clusters[i]["PC1_1d"],
                         y = clusters[i]["dummy"],
                         mode = "markers",
-                        name = "Cluster {}".format(i),
+                        name = "Cluster {}".format(self.n_clusters[i]),
                         marker = dict(color = self.colors[i]),
                         text = names))
                 title = "Visualizing Clusters in One Dimension Using PCA"
@@ -490,4 +510,3 @@ class MD_clustering:
             self.data_clustered = x
         else: 
            self.data = pd.DataFrame(x)
-        
