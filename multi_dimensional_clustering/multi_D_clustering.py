@@ -17,9 +17,10 @@ from plotly.offline import iplot
 from IPython.display import display
 from IPython.display import Image
 
+from sklearn.utils import all_estimators
 from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler
+from sklearn.cluster import *
+from sklearn.preprocessing import *
 
 class MD_clustering:
 
