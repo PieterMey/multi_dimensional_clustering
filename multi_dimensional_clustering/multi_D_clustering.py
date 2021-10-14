@@ -182,7 +182,10 @@ class MD_clustering:
             max_n (int, optional): Maximum desired clusters. Defaults to 11.
         """
         if not(isinstance(X, pd.DataFrame)) and X == '':
-            X = self.data_scaled.copy()
+            if isinstance(self.data_scaled, pd.DataFrame):
+                X = self.data_scaled.copy()
+            elif isinstance(self.data, pd.DataFrame):
+                X = self.data.copy()
 
         pca = PCA(n_components=np.shape(X)[1])
         principalComponents = pca.fit_transform(X)
@@ -217,7 +220,10 @@ class MD_clustering:
             positive_cor (bool, optional): If user only wants to see the positive correlated features to each PC. Defaults to False.
         """
         if not(isinstance(X, pd.DataFrame)) and X == '':
-            X = self.data_scaled.copy()
+            if isinstance(self.data_scaled, pd.DataFrame):
+                X = self.data_scaled.copy()
+            elif isinstance(self.data, pd.DataFrame):
+                X = self.data.copy()
 
         # Train PCA
         pca = PCA().fit(X)
@@ -259,7 +265,10 @@ class MD_clustering:
             clusters_n (int, non-optional): An integer to cluster the data 'X' into n clusters. Defaults to 3.
         """
         if not(isinstance(X, pd.DataFrame)) and X == '':
-            X =self.data_scaled.copy()
+            if isinstance(X, pd.DataFrame):
+                X = self.data_scaled.copy()
+            elif isinstance(X, pd.DataFrame):
+                X = self.data.copy()
 
         x = X.copy()
         self.n_clusters = clusters_n
@@ -281,8 +290,11 @@ class MD_clustering:
             X (pd.DataFrame): A clustered pandas DataFrame. Must include a column with 'Cluster' labels.
         """
         if not(isinstance(X, pd.DataFrame)) and X == '':
-            X = self.data_clustered.copy()
-
+            if isinstance(self.data_clustered, pd.DataFrame):
+                X = self.data_clustered.copy()
+            elif isinstance(self.data, pd.DataFrame):
+                X = self.data.copy()
+                
         plotX = X.copy()
         plotX.columns = X.columns
 
@@ -308,7 +320,7 @@ class MD_clustering:
 
         self.plotX = plotX
  
-    def visualize(self, graph='2D', X='', show_loading_scores=True, show_mesh=False):
+    def visualize(self, graph='2D', X='', show_loading_scores=False, show_mesh=False):
         """
         The function is able to visualize clustered data 'X' in different dimensions 1D || 2D || 3D projected from prinicipal components of the data set features.
 
@@ -335,7 +347,10 @@ class MD_clustering:
         clusters = []
 
         # Removes a common string within all column names ('i.e., 'sales_cat_')
-        features = [x.replace('sales_cat_','') for x in self.data_scaled.columns]
+        if isinstance(self.data_scaled, pd.DataFrame):
+            features = self.data_scaled.columns
+        elif isinstance(self.data, pd.DataFrame):
+            features = self.data.columns
 
         PLOT = go.Figure()
 
