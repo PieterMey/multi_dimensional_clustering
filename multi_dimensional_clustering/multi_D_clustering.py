@@ -266,9 +266,9 @@ class MD_clustering:
             clusters_n (int, non-optional): An integer to cluster the data 'X' into n clusters. Defaults to 3.
         """
         if not(isinstance(X, pd.DataFrame)) and X == '':
-            if isinstance(X, pd.DataFrame):
+            if isinstance(self.data_scaled, pd.DataFrame):
                 X = self.data_scaled.copy()
-            elif isinstance(X, pd.DataFrame):
+            elif isinstance(self.data, pd.DataFrame):
                 X = self.data.copy()
 
         x = X.copy()
